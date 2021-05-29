@@ -97,10 +97,19 @@ int refinamento (SistLinear_t *SL, real_t *x, double *tTotal)
 
   \return ponteiro para SL. NULL se houve erro de alocação
   */
-SistLinear_t* alocaSistLinear (unsigned int n)
+SistLinear_t* alocaSistLinear(unsigned int n)
 {
-
-
+    SistLinear_t *SL = (SistLinear_t *) malloc(sizeof(SistLinear_t));
+    if (SL) {
+        SL->A = (real_t **) malloc(n * n * sizeof(real_t));
+        SL->b = (real_t *) malloc(n * sizeof(real_t));
+        SL->n = n;
+        if (!(SL->A) || !(SL->b)) {
+            liberaSistLinear(SL);
+            return NULL;
+        }
+    }
+    return (SL);
 }
 
 /*!
@@ -119,9 +128,22 @@ void liberaSistLinear (SistLinear_t *SL)
 
   \return sistema linear SL. NULL se houve erro (leitura ou alocação)
   */
-SistLinear_t *lerSistLinear ()
+SistLinear_t* lerSistLinear()
 {
-  
+    unsigned int numberOfElements;
+    SistLinear_t *LinearSystem;
+    scanf("%d", &numberOfElements);
+    LinearSystem = alocaSistLinear(numberOfElements);
+    scanf("%f", &LinearSystem->erro);
+    for(int i = 0; i < numberOfElements; ++i) {
+        for(int j = 0; j < numberOfElements; ++j) {
+            scanf("%f", &(*LinearSystem->A[i * numberOfElements + j]));
+        }
+    }
+    for(int i = 0; i < numberOfElements; ++i) {
+        scanf("%f", &LinearSystem->b[i]);
+    }
+    return LinearSystem;
 }
 
 
