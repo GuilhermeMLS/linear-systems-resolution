@@ -269,3 +269,11 @@ void retrosubstitution(SistLinear_t *linearSystem, real_t *solutionArray) {
         solutionArray[i] = sum / matrix[i][i];
     }
 }
+
+real_t calculateEuclideanNorm(real_t *vector, int size) {
+    real_t dotProduct = 0;
+    for (int i = 0; i < size; i++) {
+        dotProduct += vector[i] * vector[i];
+    }
+    return sqrt(dotProduct);
+}
