@@ -53,10 +53,10 @@ int eliminacaoGauss(SistLinear_t* SL, real_t* x, double* tTotal) {
                 }
             }
             b[i] = b[i] - b[k] * m;
-            // TODO: remove this
-            printf("\ndebug\n");
-            prnSistLinear(linearSystem);
-            printf("\n------\n");
+//            // TODO: remove this
+//            printf("\ndebug\n");
+//            prnSistLinear(linearSystem);
+//            printf("\n------\n");
         }
     }
     retrosubstitution(linearSystem, solutionsArray);
@@ -167,7 +167,13 @@ SistLinear_t* lerSistLinear() {
     unsigned int numberOfElements;
     SistLinear_t* linearSystem;
     scanf("%d", &numberOfElements);
+    if (!numberOfElements || numberOfElements <= 0) {
+        return NULL;
+    }
     linearSystem = alocaSistLinear(numberOfElements);
+    if (!linearSystem) {
+        return NULL;
+    }
     scanf("%f", &linearSystem->erro);
     for(int i = 0; i < numberOfElements; ++i) {
         for(int j = 0; j < numberOfElements; ++j) {
@@ -177,6 +183,7 @@ SistLinear_t* lerSistLinear() {
     for(int i = 0; i < numberOfElements; ++i) {
         scanf("%f", &linearSystem->b[i]);
     }
+    printf("--> n = %d, erro: %f\n", numberOfElements, linearSystem->erro);
     return linearSystem;
 }
 
