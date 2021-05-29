@@ -198,10 +198,8 @@ void prnSistLinear(SistLinear_t* SL) {
 // Exibe um vetor na saída padrão
 void prnVetor(real_t *v, unsigned int n) {
     int i;
-    printf ("\n");
     for( i = 0; i < n; i++)
         printf("%f ", v[i]);
-    printf("\n\n");
 }
 
 /*!
