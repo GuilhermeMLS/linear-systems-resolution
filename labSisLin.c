@@ -5,8 +5,9 @@
 #include "utils.h"
 #include "SistemasLineares.h"
 
-int main ()
+int main()
 {
-
+    SistLinear_t* linearSystem = lerSistLinear();
+    prnSistLinear(linearSystem);
 }
 

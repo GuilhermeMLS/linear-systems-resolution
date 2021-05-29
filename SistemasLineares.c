@@ -99,17 +99,26 @@ int refinamento (SistLinear_t *SL, real_t *x, double *tTotal)
   */
 SistLinear_t* alocaSistLinear(unsigned int n)
 {
-    SistLinear_t *SL = (SistLinear_t *) malloc(sizeof(SistLinear_t));
-    if (SL) {
-        SL->A = (real_t **) malloc(n * n * sizeof(real_t));
-        SL->b = (real_t *) malloc(n * sizeof(real_t));
-        SL->n = n;
-        if (!(SL->A) || !(SL->b)) {
-            liberaSistLinear(SL);
-            return NULL;
-        }
+    unsigned int linearSystemSize = n; //improving code readability
+    SistLinear_t* linearSystem = (SistLinear_t *) malloc(sizeof(SistLinear_t));
+    if (!linearSystem) {
+        return NULL;
     }
-    return (SL);
+    linearSystem->A = (real_t**) malloc(linearSystemSize * sizeof(real_t*));
+    if (!linearSystem->A) {
+        printf("Malloc Error: SL->A");
+        return NULL;
+    }
+    for (int i = 0; i < linearSystemSize; i++) {
+        linearSystem->A[i] = (real_t*) malloc(linearSystemSize * sizeof(real_t));
+    }
+    linearSystem->b = (real_t*) malloc(linearSystemSize * sizeof(real_t));
+    linearSystem->n = linearSystemSize;
+    if (!(linearSystem->A) || !(linearSystem->b)) {
+        liberaSistLinear(linearSystem);
+        return NULL;
+    }
+    return linearSystem;
 }
 
 /*!
@@ -131,32 +140,33 @@ void liberaSistLinear (SistLinear_t *SL)
 SistLinear_t* lerSistLinear()
 {
     unsigned int numberOfElements;
-    SistLinear_t *LinearSystem;
+    SistLinear_t* linearSystem;
     scanf("%d", &numberOfElements);
-    LinearSystem = alocaSistLinear(numberOfElements);
-    scanf("%f", &LinearSystem->erro);
+    linearSystem = alocaSistLinear(numberOfElements);
+    scanf("%f", &linearSystem->erro);
     for(int i = 0; i < numberOfElements; ++i) {
         for(int j = 0; j < numberOfElements; ++j) {
-            scanf("%f", &(*LinearSystem->A[i * numberOfElements + j]));
+            scanf("%f", &linearSystem->A[i][j]);
         }
     }
     for(int i = 0; i < numberOfElements; ++i) {
-        scanf("%f", &LinearSystem->b[i]);
+        scanf("%f", &linearSystem->b[i]);
     }
-    return LinearSystem;
+    return linearSystem;
 }
 
 
 // Exibe SL na saída padrão
-void prnSistLinear(SistLinear_t *SL)
+void prnSistLinear(SistLinear_t* SL)
 {
-    int n = SL->n;
-    for(int i = 0; i < n; ++i) {
+    SistLinear_t* linearSystem = SL;
+    int n = linearSystem->n;
+    for (int i = 0; i < n; ++i) {
         printf("\n\t");
-        for(int j = 0; j < n; ++j) {
-            printf("%.6f", *SL->A[i * n + j]);
+        for (int j = 0; j < n; ++j) {
+            printf(" %.6f ", linearSystem->A[i][j]);
         }
-        printf("   |   %.6f", SL->b[i]);
+        printf("   |   %.6f", linearSystem->b[i]);
     }
     printf("\n\n");
 }

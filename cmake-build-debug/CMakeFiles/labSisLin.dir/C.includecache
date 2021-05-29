@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/guilhermemorais/Documents/UFPR/ead_3/icc/exercicio_2/labSisLin/SistemasLineares.c
+stdio.h
+-
+math.h
+-
+stdlib.h
+-
+utils.h
+/Users/guilhermemorais/Documents/UFPR/ead_3/icc/exercicio_2/labSisLin/utils.h
+SistemasLineares.h
+/Users/guilhermemorais/Documents/UFPR/ead_3/icc/exercicio_2/labSisLin/SistemasLineares.h
+
+/Users/guilhermemorais/Documents/UFPR/ead_3/icc/exercicio_2/labSisLin/SistemasLineares.h
+
+/Users/guilhermemorais/Documents/UFPR/ead_3/icc/exercicio_2/labSisLin/utils.h
+stdlib.h
+-
+sys/time.h
+-
+
