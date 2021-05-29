@@ -175,12 +175,12 @@ SistLinear_t* lerSistLinear() {
         return NULL;
     }
     scanf("%f", &linearSystem->erro);
-    for(int i = 0; i < numberOfElements; ++i) {
-        for(int j = 0; j < numberOfElements; ++j) {
+    for (int i = 0; i < numberOfElements; ++i) {
+        for (int j = 0; j < numberOfElements; ++j) {
             scanf("%f", &linearSystem->A[i][j]);
         }
     }
-    for(int i = 0; i < numberOfElements; ++i) {
+    for (int i = 0; i < numberOfElements; ++i) {
         scanf("%f", &linearSystem->b[i]);
     }
     printf("--> n = %d, erro: %f\n", numberOfElements, linearSystem->erro);
