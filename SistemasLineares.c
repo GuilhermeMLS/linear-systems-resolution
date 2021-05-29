@@ -28,18 +28,21 @@ real_t normaL2Residuo(SistLinear_t *SL, real_t *x, real_t *res) {
 
   \return código de erro. 0 em caso de sucesso.
 */
-int eliminacaoGauss(SistLinear_t *SL, real_t *x, double *tTotal) {
+int eliminacaoGauss(SistLinear_t* SL, real_t* x, double* tTotal) {
 //    TODO: Search for NULL equations
 //    if (hasNullEquation(SL)) {
 //        fprintf(stderr, "Null equation detected, the linear system has infinite solutions.\n");
 //        return -1;
 //    }
-    int n = SL->n;
-    real_t** matrix = SL->A;
-    real_t* b = SL->b;
+    // improving code readability
+    SistLinear_t* linearSystem = SL;
+    real_t* solutionsArray = x;
+    int n = linearSystem->n;
+    real_t** matrix = linearSystem->A;
+    real_t* b = linearSystem->b;
     real_t m = 0;
     for (int k = 0; k < n-1; k++) {
-        partialPivoting(SL, k);
+        partialPivoting(linearSystem, k);
         for (int i = 1 + k; i < n; i++) {
             m = matrix[i][k] / matrix[k][k];
             for (int j = k; j < n; j++) {
@@ -50,13 +53,16 @@ int eliminacaoGauss(SistLinear_t *SL, real_t *x, double *tTotal) {
                 }
             }
             b[i] = b[i] - b[k] * m;
+            // TODO: remove this
             printf("\ndebug\n");
-            prnSistLinear(SL);
+            prnSistLinear(linearSystem);
             printf("\n------\n");
         }
     }
-    retrosubstitution(SL, x);
-    //TODO: does the system got solved?
+    retrosubstitution(linearSystem, solutionsArray);
+    // TODO: does the system got solved?
+    // Calculate time
+    *tTotal = timestamp() - *tTotal;
     return 0;
 }
 
