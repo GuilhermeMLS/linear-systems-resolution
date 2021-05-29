@@ -105,10 +105,6 @@ SistLinear_t* alocaSistLinear(unsigned int n)
         return NULL;
     }
     linearSystem->A = (real_t**) malloc(linearSystemSize * sizeof(real_t*));
-    if (!linearSystem->A) {
-        printf("Malloc Error: SL->A");
-        return NULL;
-    }
     for (int i = 0; i < linearSystemSize; i++) {
         linearSystem->A[i] = (real_t*) malloc(linearSystemSize * sizeof(real_t));
     }
@@ -126,10 +122,14 @@ SistLinear_t* alocaSistLinear(unsigned int n)
 
   \param sistema linear SL
   */
-void liberaSistLinear (SistLinear_t *SL)
+void liberaSistLinear(SistLinear_t *SL)
 {
-
-
+    for (int i = 0; i < SL->n; i++) {
+        free(SL->A[i]);
+    }
+    free(SL->A);
+    free(SL->b);
+    free(SL);
 }
 
 /*!
