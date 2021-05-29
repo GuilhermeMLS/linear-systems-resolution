@@ -14,8 +14,7 @@
 
   \return Norma L2 do resíduo.
 */
-real_t normaL2Residuo(SistLinear_t *SL, real_t *x, real_t *res)
-{
+real_t normaL2Residuo(SistLinear_t *SL, real_t *x, real_t *res) {
 
 }
 
@@ -29,9 +28,7 @@ real_t normaL2Residuo(SistLinear_t *SL, real_t *x, real_t *res)
 
   \return código de erro. 0 em caso de sucesso.
 */
-int eliminacaoGauss (SistLinear_t *SL, real_t *x, double *tTotal)
-{
-
+int eliminacaoGauss (SistLinear_t *SL, real_t *x, double *tTotal) {
 
 }
 
@@ -47,8 +44,7 @@ int eliminacaoGauss (SistLinear_t *SL, real_t *x, double *tTotal)
           de iterações realizadas. Um nr. negativo indica um erro:
           -1 (não converge) -2 (sem solução)
 */
-int gaussJacobi (SistLinear_t *SL, real_t *x, double *tTotal)
-{
+int gaussJacobi (SistLinear_t *SL, real_t *x, double *tTotal) {
 
 
 }
@@ -65,8 +61,7 @@ int gaussJacobi (SistLinear_t *SL, real_t *x, double *tTotal)
           de iterações realizadas. Um nr. negativo indica um erro:
           -1 (não converge) -2 (sem solução)
   */
-int gaussSeidel (SistLinear_t *SL, real_t *x, double *tTotal)
-{
+int gaussSeidel (SistLinear_t *SL, real_t *x, double *tTotal) {
 
 
 }
@@ -84,8 +79,7 @@ int gaussSeidel (SistLinear_t *SL, real_t *x, double *tTotal)
           de iterações realizadas. Um nr. negativo indica um erro:
           -1 (não converge) -2 (sem solução)
   */
-int refinamento (SistLinear_t *SL, real_t *x, double *tTotal)
-{
+int refinamento (SistLinear_t *SL, real_t *x, double *tTotal) {
 
 
 }
@@ -97,8 +91,7 @@ int refinamento (SistLinear_t *SL, real_t *x, double *tTotal)
 
   \return ponteiro para SL. NULL se houve erro de alocação
   */
-SistLinear_t* alocaSistLinear(unsigned int n)
-{
+SistLinear_t* alocaSistLinear(unsigned int n) {
     unsigned int linearSystemSize = n; //improving code readability
     SistLinear_t* linearSystem = (SistLinear_t *) malloc(sizeof(SistLinear_t));
     if (!linearSystem) {
@@ -122,8 +115,7 @@ SistLinear_t* alocaSistLinear(unsigned int n)
 
   \param sistema linear SL
   */
-void liberaSistLinear(SistLinear_t *SL)
-{
+void liberaSistLinear(SistLinear_t *SL) {
     for (int i = 0; i < SL->n; i++) {
         free(SL->A[i]);
     }
@@ -137,8 +129,7 @@ void liberaSistLinear(SistLinear_t *SL)
 
   \return sistema linear SL. NULL se houve erro (leitura ou alocação)
   */
-SistLinear_t* lerSistLinear()
-{
+SistLinear_t* lerSistLinear() {
     unsigned int numberOfElements;
     SistLinear_t* linearSystem;
     scanf("%d", &numberOfElements);
@@ -157,8 +148,7 @@ SistLinear_t* lerSistLinear()
 
 
 // Exibe SL na saída padrão
-void prnSistLinear(SistLinear_t* SL)
-{
+void prnSistLinear(SistLinear_t* SL) {
     SistLinear_t* linearSystem = SL;
     int n = linearSystem->n;
     for (int i = 0; i < n; ++i) {
@@ -172,8 +162,7 @@ void prnSistLinear(SistLinear_t* SL)
 }
 
 // Exibe um vetor na saída padrão
-void prnVetor (real_t *v, unsigned int n)
-{
+void prnVetor(real_t *v, unsigned int n) {
     int i;
     printf ("\n");
     for( i = 0; i < n; i++)
@@ -181,3 +170,48 @@ void prnVetor (real_t *v, unsigned int n)
     printf("\n\n");
 }
 
+/*!
+  \brief Partial pivot of Gaussian Elimination
+*/
+void partialPivoting(SistLinear_t *linearSystem, int currentIteration) {
+    int linearSystemSize = linearSystem->n;
+    real_t** matrix = linearSystem->A;
+    real_t* independentTerms = linearSystem->b;
+
+    // 1) Find the biggest element of the column below the pivot
+    int column = currentIteration;
+    int greaterLineIndex = currentIteration;
+    real_t biggestElement = matrix[currentIteration][currentIteration];
+    for (int i = currentIteration; i < linearSystemSize; i++) {
+        if (fabs(matrix[i][column]) > fabs(biggestElement)) {
+            greaterLineIndex = i;
+        }
+    }
+
+    // 2) Replace Line A with Line B (Line B is the Line of the biggest element)
+    int lineOne = currentIteration;
+    int lineTwo = greaterLineIndex;
+
+    // 2.1) Save lineOne in an aux array
+    real_t *auxLine = malloc(sizeof(real_t) * linearSystemSize);
+    for (int j = 0; j < linearSystemSize; j++) {
+        auxLine[j] = matrix[lineOne][j];
+    }
+
+    // 2.2) Insert lineTwo in lineOne
+    for (int j = 0; j < linearSystemSize; j++) {
+        matrix[lineOne][j] = matrix[lineTwo][j];
+    }
+
+    // 2.3) Insert auxLine (lineOne) in lineTwo
+    for (int j = 0; j < linearSystemSize; j++) {
+        matrix[lineTwo][j] = auxLine[j];
+    }
+
+    // 2.3) Replace B
+    real_t auxElement = independentTerms[lineOne];
+    independentTerms[lineOne] = independentTerms[lineTwo];
+    independentTerms[lineTwo] = auxElement;
+
+    free(auxLine);
+}

@@ -37,5 +37,7 @@ int gaussSeidel (SistLinear_t *SL, real_t *x, double *tTotal);
 // Método de Refinamento. Valor inicial e resultado no parâmetro 'x'
 int refinamento (SistLinear_t *SL, real_t *x, double *tTotal);
 
+void partialPivoting(SistLinear_t *linearSystem, int currentIteration);
+
 #endif // __SISLINEAR_H__
 
