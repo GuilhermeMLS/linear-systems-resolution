@@ -126,9 +126,17 @@ SistLinear_t *lerSistLinear ()
 
 
 // Exibe SL na saída padrão
-void prnSistLinear (SistLinear_t *SL)
+void prnSistLinear(SistLinear_t *SL)
 {
-
+    int n = SL->n;
+    for(int i = 0; i < n; ++i) {
+        printf("\n\t");
+        for(int j = 0; j < n; ++j) {
+            printf("%.6f", *SL->A[i * n + j]);
+        }
+        printf("   |   %.6f", SL->b[i]);
+    }
+    printf("\n\n");
 }
 
 // Exibe um vetor na saída padrão
