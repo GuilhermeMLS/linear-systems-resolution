@@ -27,9 +27,8 @@ void gaussianElimination(SistLinear_t* linearSystem) {
     *executionTime = timestamp();
     real_t* solutionArray = malloc(linearSystem->n * sizeof(real_t));
     eliminacaoGauss(linearSystem, solutionArray, executionTime);
-    char methodName[] = "Eliminação Gauss";
-    // TODO: L2 Residue Norm
-    printSolution(methodName, *executionTime, solutionArray, linearSystem->n, 1);
+    // TODO: L2 Residue Norm 
+    printSolution("Eliminação Gauss", *executionTime, solutionArray, linearSystem->n, 1);
 }
 
 int main()
