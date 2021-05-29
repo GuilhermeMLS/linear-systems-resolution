@@ -28,8 +28,36 @@ real_t normaL2Residuo(SistLinear_t *SL, real_t *x, real_t *res) {
 
   \return código de erro. 0 em caso de sucesso.
 */
-int eliminacaoGauss (SistLinear_t *SL, real_t *x, double *tTotal) {
-
+int eliminacaoGauss(SistLinear_t *SL, real_t *x, double *tTotal) {
+//    TODO: Search for NULL equations
+//    if (hasNullEquation(SL)) {
+//        fprintf(stderr, "Null equation detected, the linear system has infinite solutions.\n");
+//        return -1;
+//    }
+    int n = SL->n;
+    real_t** matrix = SL->A;
+    real_t* b = SL->b;
+    real_t m = 0;
+    for (int k = 0; k < n-1; k++) {
+        partialPivoting(SL, k);
+        for (int i = 1 + k; i < n; i++) {
+            m = matrix[i][k] / matrix[k][k];
+            for (int j = k; j < n; j++) {
+                if (j == k) {
+                    matrix[i][j] = 0;
+                } else {
+                    matrix[i][j] = matrix[i][j] - matrix[k][j] * m;
+                }
+            }
+            b[i] = b[i] - b[k] * m;
+            printf("\ndebug\n");
+            prnSistLinear(SL);
+            printf("\n------\n");
+        }
+    }
+    retrosubstitution(SL, x);
+    //TODO: does the system got solved?
+    return 0;
 }
 
 /*!
@@ -214,4 +242,19 @@ void partialPivoting(SistLinear_t *linearSystem, int currentIteration) {
     independentTerms[lineTwo] = auxElement;
 
     free(auxLine);
+}
+
+void retrosubstitution(SistLinear_t *linearSystem, real_t *solutionArray) {
+    int n = linearSystem->n;
+    real_t** matrix = linearSystem->A;
+    real_t* b = linearSystem->b;
+    solutionArray[n - 1] =  b[n - 1] / matrix[(n - 1)][(n - 1)];
+    real_t sum = 0;
+    for (int i = n - 2; i >= 0; i--) {
+        sum = b[i];
+        for (int j = i + 1; j < n; j++) {
+            sum -= matrix[i][j] * solutionArray[j];
+        }
+        solutionArray[i] = sum / matrix[i][i];
+    }
 }

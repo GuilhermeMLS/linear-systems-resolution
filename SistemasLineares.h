@@ -39,5 +39,7 @@ int refinamento (SistLinear_t *SL, real_t *x, double *tTotal);
 
 void partialPivoting(SistLinear_t *linearSystem, int currentIteration);
 
+void retrosubstitution(SistLinear_t *linearSystem, real_t *solutionArray);
+
 #endif // __SISLINEAR_H__
 
