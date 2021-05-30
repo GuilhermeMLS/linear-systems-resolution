@@ -27,12 +27,12 @@ void gaussianElimination(SistLinear_t* linearSystem) {
     *executionTime = timestamp();
     real_t* solutionArray = malloc(linearSystem->n * sizeof(real_t));
     eliminacaoGauss(linearSystem, solutionArray, executionTime);
-    real_t residueL2Norm = calculateEuclideanNorm(solutionArray, linearSystem->n);
+    real_t* residueArray = malloc(linearSystem->n * sizeof(real_t));
+    real_t residueL2Norm = normaL2Residuo(linearSystem, solutionArray, residueArray);
     printSolution("Eliminação Gauss", *executionTime, solutionArray, linearSystem->n, residueL2Norm);
 }
 
-int main()
-{
+int main() {
     for (int i = 0; i < NUMBER_OF_SYSTEMS; i++) {
         printf("***** Sistema %d ", i);
         SistLinear_t* linearSystem = lerSistLinear();

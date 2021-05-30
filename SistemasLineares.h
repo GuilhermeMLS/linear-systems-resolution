@@ -41,7 +41,13 @@ void partialPivoting(SistLinear_t *linearSystem, int currentIteration);
 
 void retrosubstitution(SistLinear_t *linearSystem, real_t *solutionArray);
 
-real_t calculateEuclideanNorm(real_t *vector, int size);
+real_t euclideanNorm(const real_t *vector, int size);
+
+real_t* getResidueArray(SistLinear_t* linearSystem, real_t* solutionArray);
+
+real_t multiplyColumns(const real_t *columnA, const real_t *columnB, int columnsSize);
+
+real_t dotProduct(const real_t* vector, int size);
 
 #endif // __SISLINEAR_H__
 

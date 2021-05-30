@@ -15,7 +15,8 @@
   \return Norma L2 do resíduo.
 */
 real_t normaL2Residuo(SistLinear_t *SL, real_t *x, real_t *res) {
-
+    res = getResidueArray(SL, x);
+    return euclideanNorm(res, SL->n);
 }
 
 
@@ -29,11 +30,7 @@ real_t normaL2Residuo(SistLinear_t *SL, real_t *x, real_t *res) {
   \return código de erro. 0 em caso de sucesso.
 */
 int eliminacaoGauss(SistLinear_t* SL, real_t* x, double* tTotal) {
-//    TODO: Search for NULL equations
-//    if (hasNullEquation(SL)) {
-//        fprintf(stderr, "Null equation detected, the linear system has infinite solutions.\n");
-//        return -1;
-//    }
+    //TODO: Search for NULL equations (?)
     // improving code readability
     SistLinear_t* linearSystem = SL;
     real_t* solutionsArray = x;
@@ -53,10 +50,6 @@ int eliminacaoGauss(SistLinear_t* SL, real_t* x, double* tTotal) {
                 }
             }
             b[i] = b[i] - b[k] * m;
-//            // TODO: remove this
-//            printf("\ndebug\n");
-//            prnSistLinear(linearSystem);
-//            printf("\n------\n");
         }
     }
     retrosubstitution(linearSystem, solutionsArray);
@@ -79,8 +72,7 @@ int eliminacaoGauss(SistLinear_t* SL, real_t* x, double* tTotal) {
           -1 (não converge) -2 (sem solução)
 */
 int gaussJacobi (SistLinear_t *SL, real_t *x, double *tTotal) {
-
-
+    // TODO
 }
 
 /*!
@@ -270,10 +262,37 @@ void retrosubstitution(SistLinear_t *linearSystem, real_t *solutionArray) {
     }
 }
 
-real_t calculateEuclideanNorm(real_t *vector, int size) {
+real_t euclideanNorm(const real_t *vector, int size) {
+    return sqrt(dotProduct(vector, size));
+}
+
+real_t dotProduct(const real_t* vector, int size) {
     real_t dotProduct = 0;
     for (int i = 0; i < size; i++) {
         dotProduct += vector[i] * vector[i];
     }
-    return sqrt(dotProduct);
+    return dotProduct;
+}
+
+
+real_t multiplyColumns(const real_t *columnA, const real_t *columnB, int columnsSize) {
+    real_t result = 0;
+    for (int i = 0; i < columnsSize; i++) {
+        result += columnA[i] * columnB[i];
+    }
+    return result;
+}
+
+real_t* getResidueArray(SistLinear_t* linearSystem, real_t* solutionArray) {
+    // R = AX - b
+    real_t* residueArray = malloc(linearSystem->n * sizeof(real_t));
+    for (int i = 0; i < linearSystem->n; i++) {
+        real_t* currentMatrixColumn = linearSystem->A[i];
+        residueArray[i] = multiplyColumns(
+            currentMatrixColumn,
+            solutionArray,
+            linearSystem->n
+        ) - linearSystem->b[i];
+    }
+    return residueArray;
 }
