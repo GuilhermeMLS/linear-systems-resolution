@@ -20,6 +20,18 @@ SistemasLineares.h
 
 /Users/guilhermemorais/Documents/UFPR/ead_3/icc/exercicio_2/labSisLin/SistemasLineares.h
 
+/Users/guilhermemorais/Documents/UFPR/ead_3/icc/exercicio_2/labSisLin/labSisLin.c
+stdio.h
+-
+stdlib.h
+-
+math.h
+-
+utils.h
+/Users/guilhermemorais/Documents/UFPR/ead_3/icc/exercicio_2/labSisLin/utils.h
+SistemasLineares.h
+/Users/guilhermemorais/Documents/UFPR/ead_3/icc/exercicio_2/labSisLin/SistemasLineares.h
+
 /Users/guilhermemorais/Documents/UFPR/ead_3/icc/exercicio_2/labSisLin/utils.h
 stdlib.h
 -

@@ -57,6 +57,16 @@ void gaussSeidelMethod(SistLinear_t* linearSystem) {
     printSolution("Gauss-Seidel", *executionTime, solutionArray, linearSystem->n, residueL2Norm, numberOfIterations);
 }
 
+void gaussianEliminationWithRefinementMethod(SistLinear_t* linearSystem) {
+    double_t* executionTime = malloc(sizeof(double_t));
+    *executionTime = timestamp();
+    real_t* solutionArray = malloc(linearSystem->n * sizeof(real_t));
+    int numberOfIterations = refinamento(linearSystem, solutionArray, executionTime);
+    real_t* residueArray = malloc(linearSystem->n * sizeof(real_t));
+    real_t residueL2Norm = normaL2Residuo(linearSystem, solutionArray, residueArray);
+    printSolution("Refinamento", *executionTime, solutionArray, linearSystem->n, residueL2Norm, numberOfIterations);
+}
+
 int main() {
     for (int i = 0; i < NUMBER_OF_SYSTEMS; i++) {
         printf("***** Sistema %d ", i);
@@ -64,5 +74,6 @@ int main() {
         gaussianElimination(linearSystem);
         jacobiMethod(linearSystem);
         gaussSeidelMethod(linearSystem);
+        gaussianEliminationWithRefinementMethod(linearSystem);
     }
 }

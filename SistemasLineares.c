@@ -161,7 +161,7 @@ int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
     do {
         for (int i = 0; i < linearSystemSize; i++) {
             if (!SL->A[i][i]) {
-                fprintf(stderr, "%s\n", "[Jacobi Method] Error: divison by zero");
+                fprintf(stderr, "%s\n", "[Gauss-Seidel] Error: divison by zero");
                 return -2;
             }
             diff[i] = x[i];
@@ -177,11 +177,11 @@ int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
                 : 0;
         }
         if (errorIncreaseCounter == CONVERGE_LIMIT) {
-            fprintf(stderr, "O sistema não está convergindo, o erro aumentou %d vezes seguidas",CONVERGE_LIMIT);
+            fprintf(stderr, "[Gauss-Seidel] Error: solution dot not converge (the error has increased %d consecutive times)", CONVERGE_LIMIT);
             return -1;
         }
         if (++numberOfIterations == MAXIT) {
-            fprintf(stderr, "%s\n", "[Jacobi Method] Error: maximum iterations number reached");
+            fprintf(stderr, "%s\n", "[Gauss-Seidel] Error: maximum iterations number reached");
             return -2;
         }
         previousEuclideanNorm = currentEuclideanNorm;
@@ -191,12 +191,20 @@ int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
     return numberOfIterations;
 }
 
+real_t distance(const real_t *vectorA, const real_t *vectorB, const int size) {
+    real_t sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum += (vectorA[i] - vectorB[i]);
+    }
+    return sqrt(sum);
+}
+
 /*!
   \brief Método de Refinamento
 
   \param SL Ponteiro para o sistema linear
   \param x ponteiro para o vetor solução. Ao iniciar função contém
-            valor inicial para início do refinamento
+            valor inicial paa início do refinamento
   \param tTotal tempo gasto pelo método
 
   \return código de erro. Um nr positivo indica sucesso e o nr
@@ -204,8 +212,52 @@ int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
           -1 (não converge) -2 (sem solução)
   */
 int refinamento(SistLinear_t *SL, real_t *x, double *tTotal) {
-
-
+    // 1) Obter uma solução inicial x0 resolvendo Ax = b e inicializar i = 0
+    // 2) Calcular o resíduo r = b - Ax(i) e testar o critério de parada (a) (norma euclidiana do resíduo é menor que o SL->erro?)
+    // 3) Obter w resolvendo Aw = r;
+    // 4) Obter nova solução x(i+1) = x(i) + w e testar o critério de parada (b) (a distância máxima entre xi e xi+1 é menor que SL->error? Se sim, pode parar);
+    // 5) incrementar i e voltar ao passo 2
+    SistLinear_t *linearSystem = SL;
+    SistLinear_t *auxLinearSystem = (SistLinear_t *) malloc(sizeof(SistLinear_t));
+    auxLinearSystem->A = linearSystem->A;
+    auxLinearSystem->b = linearSystem->b;
+    auxLinearSystem->erro = linearSystem->erro;
+    auxLinearSystem->n= linearSystem->n;
+    int linearSystemSize = linearSystem->n;
+    double_t* gaussianEliminationExecutionTime = malloc(sizeof(double_t));
+    *gaussianEliminationExecutionTime = timestamp();
+    real_t *currentSolution = x;
+    real_t *previousSolution = malloc(linearSystemSize * sizeof(real_t));
+    real_t *w = malloc(linearSystemSize * sizeof(real_t));
+    real_t *residue;
+    real_t residueEuclideanNorm;
+    real_t currentDistance;
+    // 1)
+    eliminacaoGauss(linearSystem, currentSolution, gaussianEliminationExecutionTime);
+    int iterationsCounter = 1;
+    do {
+        // 2)
+        residue = getResidueArray(linearSystem, currentSolution);
+        residueEuclideanNorm = euclideanNorm(residue, linearSystemSize);
+        if (residueEuclideanNorm < linearSystem->erro) {
+            break;
+        }
+        // 3)
+        *auxLinearSystem->b = *residue;
+        eliminacaoGauss(auxLinearSystem, w, gaussianEliminationExecutionTime);
+        // 4)
+        *previousSolution = *currentSolution;
+        for (int i = 0; i < linearSystemSize; i++) {
+            currentSolution[i] = currentSolution[i] + w[i];
+        }
+        currentDistance = distance(currentSolution, previousSolution, linearSystemSize);
+        if (currentDistance < linearSystem->erro) {
+            break;
+        }
+        iterationsCounter++;
+    } while (iterationsCounter < MAXIT);
+    *tTotal = timestamp() - *tTotal;
+    return iterationsCounter;
 }
 
 /*!
