@@ -121,6 +121,8 @@ int gaussJacobi(SistLinear_t *SL, real_t *x, double *tTotal) {
         }
         previousEuclideanNorm = currentEuclideanNorm;
     } while (currentEuclideanNorm > linearSystem->erro);
+    // Calculate time
+    *tTotal = timestamp() - *tTotal;
     return numberOfIterations;
 }
 
@@ -184,6 +186,8 @@ int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
         }
         previousEuclideanNorm = currentEuclideanNorm;
     } while(currentEuclideanNorm > SL->erro);
+    // Calculate time
+    *tTotal = timestamp() - *tTotal;
     return numberOfIterations;
 }
 
