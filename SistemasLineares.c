@@ -83,11 +83,9 @@ int gaussJacobi(SistLinear_t *SL, real_t *x, double *tTotal) {
     SistLinear_t *linearSystem = SL;
     real_t *solution = x;
     unsigned int linearSystemSize = linearSystem->n;
-    // linearSystem->x is the k + 1 vector
     // "currentSolution" is the k vector
     real_t currentSolution[linearSystemSize], diff[linearSystemSize];
     int i, numberOfIterations, errorIncreaseCounter = 0;
-    // First Solution's elements are equal to 1 (as x0 is given)
     for (i = 0; i < linearSystemSize; ++i) {
         currentSolution[i] = 1;
     }
@@ -121,7 +119,7 @@ int gaussJacobi(SistLinear_t *SL, real_t *x, double *tTotal) {
             return -2;
         }
         previousEuclideanNorm = currentEuclideanNorm;
-    } while (currentEuclideanNorm > linearSystem->erro); // TODO: it was epsilon, is it correct?
+    } while (currentEuclideanNorm > linearSystem->erro);
     return numberOfIterations;
 }
 
