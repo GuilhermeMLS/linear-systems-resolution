@@ -47,11 +47,22 @@ void jacobiMethod(SistLinear_t* linearSystem) {
     printSolution("Jacobi", *executionTime, solutionArray, linearSystem->n, residueL2Norm, numberOfIterations);
 }
 
+void gaussSeidelMethod(SistLinear_t* linearSystem) {
+    double_t* executionTime = malloc(sizeof(double_t));
+    *executionTime = timestamp();
+    real_t* solutionArray = malloc(linearSystem->n * sizeof(real_t));
+    int numberOfIterations = gaussSeidel(linearSystem, solutionArray, executionTime);
+    real_t* residueArray = malloc(linearSystem->n * sizeof(real_t));
+    real_t residueL2Norm = normaL2Residuo(linearSystem, solutionArray, residueArray);
+    printSolution("Gauss-Seidel", *executionTime, solutionArray, linearSystem->n, residueL2Norm, numberOfIterations);
+}
+
 int main() {
     for (int i = 0; i < NUMBER_OF_SYSTEMS; i++) {
         printf("***** Sistema %d ", i);
         SistLinear_t* linearSystem = lerSistLinear();
         gaussianElimination(linearSystem);
         jacobiMethod(linearSystem);
+        gaussSeidelMethod(linearSystem);
     }
 }
