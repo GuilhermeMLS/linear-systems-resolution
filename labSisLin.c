@@ -12,9 +12,14 @@ void printSolution(
     double executionTime,
     real_t* solutionArray,
     int linearSystemSize,
-    real_t residueL2Norm
+    real_t residueL2Norm,
+    int numberOfIterations
 ) {
-    printf("===> %s: %lf ms\n", method, executionTime);
+    if (numberOfIterations > 0) {
+        printf("===> %s: %lf ms --> %d iteracoes\n", method, executionTime, numberOfIterations);
+    } else {
+        printf("===> %s: %lf ms\n", method, executionTime);
+    }
     printf("  --> X: ");
     prnVetor(solutionArray, linearSystemSize);
     printf("\n");
@@ -29,7 +34,17 @@ void gaussianElimination(SistLinear_t* linearSystem) {
     eliminacaoGauss(linearSystem, solutionArray, executionTime);
     real_t* residueArray = malloc(linearSystem->n * sizeof(real_t));
     real_t residueL2Norm = normaL2Residuo(linearSystem, solutionArray, residueArray);
-    printSolution("Eliminação Gauss", *executionTime, solutionArray, linearSystem->n, residueL2Norm);
+    printSolution("Eliminação Gauss", *executionTime, solutionArray, linearSystem->n, residueL2Norm, 0);
+}
+
+void jacobiMethod(SistLinear_t* linearSystem) {
+    double_t* executionTime = malloc(sizeof(double_t));
+    *executionTime = timestamp();
+    real_t* solutionArray = malloc(linearSystem->n * sizeof(real_t));
+    int numberOfIterations = gaussJacobi(linearSystem, solutionArray, executionTime);
+    real_t* residueArray = malloc(linearSystem->n * sizeof(real_t));
+    real_t residueL2Norm = normaL2Residuo(linearSystem, solutionArray, residueArray);
+    printSolution("Jacobi", *executionTime, solutionArray, linearSystem->n, residueL2Norm, numberOfIterations);
 }
 
 int main() {
@@ -37,5 +52,6 @@ int main() {
         printf("***** Sistema %d ", i);
         SistLinear_t* linearSystem = lerSistLinear();
         gaussianElimination(linearSystem);
+        jacobiMethod(linearSystem);
     }
 }

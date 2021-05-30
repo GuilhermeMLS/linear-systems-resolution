@@ -3,6 +3,7 @@
 
 // Parâmetros para teste de convergência
 #define MAXIT   50  // Número máximo de iterações em métodos iterativos
+#define CONVERGE_LIMIT 50 // Maximum number of times the error can increase from one iteration to another
 
 typedef float real_t;
 

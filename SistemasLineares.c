@@ -29,16 +29,16 @@ real_t normaL2Residuo(SistLinear_t *SL, real_t *x, real_t *res) {
 
   \return código de erro. 0 em caso de sucesso.
 */
-int eliminacaoGauss(SistLinear_t* SL, real_t* x, double* tTotal) {
+int eliminacaoGauss(SistLinear_t *SL, real_t *x, double *tTotal) {
     //TODO: Search for NULL equations (?)
-    // improving code readability
-    SistLinear_t* linearSystem = SL;
-    real_t* solutionsArray = x;
+    //improving code readability
+    SistLinear_t *linearSystem = SL;
+    real_t *solutionsArray = x;
     int n = linearSystem->n;
-    real_t** matrix = linearSystem->A;
-    real_t* b = linearSystem->b;
+    real_t **matrix = linearSystem->A;
+    real_t *b = linearSystem->b;
     real_t m = 0;
-    for (int k = 0; k < n-1; k++) {
+    for (int k = 0; k < n - 1; k++) {
         partialPivoting(linearSystem, k);
         for (int i = 1 + k; i < n; i++) {
             m = matrix[i][k] / matrix[k][k];
@@ -59,6 +59,14 @@ int eliminacaoGauss(SistLinear_t* SL, real_t* x, double* tTotal) {
     return 0;
 }
 
+real_t multiplyLinesForJacobiMethod(const real_t *solucao, SistLinear_t *SL, int i, unsigned int tam) {
+    real_t soma = 0;
+    for (int j = 0; j < tam; ++j)
+        if (j != i)
+            soma = soma + SL->A[i][j] * solucao[j];
+    return soma;
+}
+
 /*!
   \brief Método de Jacobi
 
@@ -71,8 +79,50 @@ int eliminacaoGauss(SistLinear_t* SL, real_t* x, double* tTotal) {
           de iterações realizadas. Um nr. negativo indica um erro:
           -1 (não converge) -2 (sem solução)
 */
-int gaussJacobi (SistLinear_t *SL, real_t *x, double *tTotal) {
-    // TODO
+int gaussJacobi(SistLinear_t *SL, real_t *x, double *tTotal) {
+    SistLinear_t *linearSystem = SL;
+    real_t *solution = x;
+    unsigned int linearSystemSize = linearSystem->n;
+    // linearSystem->x is the k + 1 vector
+    // "currentSolution" is the k vector
+    real_t currentSolution[linearSystemSize], diff[linearSystemSize];
+    int i, numberOfIterations, errorIncreaseCounter = 0;
+    // First Solution's elements are equal to 1 (as x0 is given)
+    for (i = 0; i < linearSystemSize; ++i) {
+        currentSolution[i] = 1;
+    }
+    numberOfIterations = 0;
+    double currentEuclideanNorm, previousEuclideanNorm;
+    do {
+        for (i = 0; i < linearSystemSize; ++i) {
+            if (!linearSystem->A[i][i]) {
+                fprintf(stderr, "%s\n", "[Jacobi Method]: divison by zero");
+                return 1;
+            }
+            solution[i] = (linearSystem->b[i] - multiplyLinesForJacobiMethod(currentSolution, linearSystem, i, linearSystemSize)) /
+                   linearSystem->A[i][i];
+        }
+        for (i = 0; i < linearSystemSize; ++i) {
+            diff[i] = solution[i] - currentSolution[i];
+            currentSolution[i] = solution[i];
+        }
+        currentEuclideanNorm = euclideanNorm(diff, linearSystemSize);
+        if (numberOfIterations > 0) { // Ensures that "previousEuclideanNorm" has been initialized
+            errorIncreaseCounter = (previousEuclideanNorm < currentEuclideanNorm)
+               ? ++errorIncreaseCounter
+               : 0;
+        }
+        if (errorIncreaseCounter == CONVERGE_LIMIT) {
+            fprintf(stderr, "[Jacobi Method] Solution dot not converge (the error has increased %d consecutive times)", CONVERGE_LIMIT);
+            return -1;
+        }
+        if (++numberOfIterations == MAXIT) {
+            fprintf(stderr, "%s\n", "[Jacobi Method] Maximum iterations number reached");
+            return -2;
+        }
+        previousEuclideanNorm = currentEuclideanNorm;
+    } while (currentEuclideanNorm > linearSystem->erro); // TODO: it was epsilon, is it correct?
+    return numberOfIterations;
 }
 
 /*!
@@ -87,7 +137,7 @@ int gaussJacobi (SistLinear_t *SL, real_t *x, double *tTotal) {
           de iterações realizadas. Um nr. negativo indica um erro:
           -1 (não converge) -2 (sem solução)
   */
-int gaussSeidel (SistLinear_t *SL, real_t *x, double *tTotal) {
+int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
 
 
 }
@@ -105,7 +155,7 @@ int gaussSeidel (SistLinear_t *SL, real_t *x, double *tTotal) {
           de iterações realizadas. Um nr. negativo indica um erro:
           -1 (não converge) -2 (sem solução)
   */
-int refinamento (SistLinear_t *SL, real_t *x, double *tTotal) {
+int refinamento(SistLinear_t *SL, real_t *x, double *tTotal) {
 
 
 }
@@ -117,17 +167,17 @@ int refinamento (SistLinear_t *SL, real_t *x, double *tTotal) {
 
   \return ponteiro para SL. NULL se houve erro de alocação
   */
-SistLinear_t* alocaSistLinear(unsigned int n) {
+SistLinear_t *alocaSistLinear(unsigned int n) {
     unsigned int linearSystemSize = n; //improving code readability
-    SistLinear_t* linearSystem = (SistLinear_t *) malloc(sizeof(SistLinear_t));
+    SistLinear_t *linearSystem = (SistLinear_t *) malloc(sizeof(SistLinear_t));
     if (!linearSystem) {
         return NULL;
     }
-    linearSystem->A = (real_t**) malloc(linearSystemSize * sizeof(real_t*));
+    linearSystem->A = (real_t **) malloc(linearSystemSize * sizeof(real_t *));
     for (int i = 0; i < linearSystemSize; i++) {
-        linearSystem->A[i] = (real_t*) malloc(linearSystemSize * sizeof(real_t));
+        linearSystem->A[i] = (real_t *) malloc(linearSystemSize * sizeof(real_t));
     }
-    linearSystem->b = (real_t*) malloc(linearSystemSize * sizeof(real_t));
+    linearSystem->b = (real_t *) malloc(linearSystemSize * sizeof(real_t));
     linearSystem->n = linearSystemSize;
     if (!(linearSystem->A) || !(linearSystem->b)) {
         liberaSistLinear(linearSystem);
@@ -155,9 +205,9 @@ void liberaSistLinear(SistLinear_t *SL) {
 
   \return sistema linear SL. NULL se houve erro (leitura ou alocação)
   */
-SistLinear_t* lerSistLinear() {
+SistLinear_t *lerSistLinear() {
     unsigned int numberOfElements;
-    SistLinear_t* linearSystem;
+    SistLinear_t *linearSystem;
     scanf("%d", &numberOfElements);
     if (!numberOfElements || numberOfElements <= 0) {
         return NULL;
@@ -181,8 +231,8 @@ SistLinear_t* lerSistLinear() {
 
 
 // Exibe SL na saída padrão
-void prnSistLinear(SistLinear_t* SL) {
-    SistLinear_t* linearSystem = SL;
+void prnSistLinear(SistLinear_t *SL) {
+    SistLinear_t *linearSystem = SL;
     int n = linearSystem->n;
     for (int i = 0; i < n; ++i) {
         printf("\n\t");
@@ -197,7 +247,7 @@ void prnSistLinear(SistLinear_t* SL) {
 // Exibe um vetor na saída padrão
 void prnVetor(real_t *v, unsigned int n) {
     int i;
-    for( i = 0; i < n; i++)
+    for (i = 0; i < n; i++)
         printf("%f ", v[i]);
 }
 
@@ -206,8 +256,8 @@ void prnVetor(real_t *v, unsigned int n) {
 */
 void partialPivoting(SistLinear_t *linearSystem, int currentIteration) {
     int linearSystemSize = linearSystem->n;
-    real_t** matrix = linearSystem->A;
-    real_t* independentTerms = linearSystem->b;
+    real_t **matrix = linearSystem->A;
+    real_t *independentTerms = linearSystem->b;
 
     // 1) Find the biggest element of the column below the pivot
     int column = currentIteration;
@@ -249,9 +299,9 @@ void partialPivoting(SistLinear_t *linearSystem, int currentIteration) {
 
 void retrosubstitution(SistLinear_t *linearSystem, real_t *solutionArray) {
     int n = linearSystem->n;
-    real_t** matrix = linearSystem->A;
-    real_t* b = linearSystem->b;
-    solutionArray[n - 1] =  b[n - 1] / matrix[(n - 1)][(n - 1)];
+    real_t **matrix = linearSystem->A;
+    real_t *b = linearSystem->b;
+    solutionArray[n - 1] = b[n - 1] / matrix[(n - 1)][(n - 1)];
     real_t sum = 0;
     for (int i = n - 2; i >= 0; i--) {
         sum = b[i];
@@ -266,7 +316,7 @@ real_t euclideanNorm(const real_t *vector, int size) {
     return sqrt(dotProduct(vector, size));
 }
 
-real_t dotProduct(const real_t* vector, int size) {
+real_t dotProduct(const real_t *vector, int size) {
     real_t dotProduct = 0;
     for (int i = 0; i < size; i++) {
         dotProduct += vector[i] * vector[i];
@@ -283,15 +333,15 @@ real_t multiplyColumns(const real_t *columnA, const real_t *columnB, int columns
     return result;
 }
 
-real_t* getResidueArray(SistLinear_t* linearSystem, real_t* solutionArray) {
+real_t *getResidueArray(SistLinear_t *linearSystem, real_t *solutionArray) {
     // R = AX - b
-    real_t* residueArray = malloc(linearSystem->n * sizeof(real_t));
+    real_t *residueArray = malloc(linearSystem->n * sizeof(real_t));
     for (int i = 0; i < linearSystem->n; i++) {
-        real_t* currentMatrixColumn = linearSystem->A[i];
+        real_t *currentMatrixColumn = linearSystem->A[i];
         residueArray[i] = multiplyColumns(
-            currentMatrixColumn,
-            solutionArray,
-            linearSystem->n
+                currentMatrixColumn,
+                solutionArray,
+                linearSystem->n
         ) - linearSystem->b[i];
     }
     return residueArray;
