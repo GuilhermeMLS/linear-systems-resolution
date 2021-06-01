@@ -233,7 +233,6 @@ int refinamento(SistLinear_t *SL, real_t *x, double *tTotal) {
     real_t residueEuclideanNorm;
     real_t currentDistance;
     // 1)
-    eliminacaoGauss(linearSystem, currentSolution, gaussianEliminationExecutionTime);
     int iterationsCounter = 1;
     do {
         // 2)
@@ -422,7 +421,6 @@ real_t dotProduct(const real_t *vector, int size) {
     return dotProduct;
 }
 
-
 real_t multiplyColumns(const real_t *columnA, const real_t *columnB, int columnsSize) {
     real_t result = 0;
     for (int i = 0; i < columnsSize; i++) {
@@ -436,11 +434,11 @@ real_t *getResidueArray(SistLinear_t *linearSystem, real_t *solutionArray) {
     real_t *residueArray = malloc(linearSystem->n * sizeof(real_t));
     for (int i = 0; i < linearSystem->n; i++) {
         real_t *currentMatrixColumn = linearSystem->A[i];
-        residueArray[i] = multiplyColumns(
+        residueArray[i] = linearSystem->b[i] - multiplyColumns(
                 currentMatrixColumn,
                 solutionArray,
                 linearSystem->n
-        ) - linearSystem->b[i];
+        );
     }
     return residueArray;
 }

@@ -97,20 +97,6 @@ void gaussSeidelMethod(SistLinear_t* linearSystem) {
     }
 }
 
-void gaussianEliminationWithRefinementMethod(SistLinear_t* linearSystem) {
-    SistLinear_t *gaussianEliminationWithRefinementLinearSystem = copyLinearSystem(linearSystem);
-    double_t* executionTime = malloc(sizeof(double_t));
-    *executionTime = timestamp();
-    real_t* solutionArray = malloc(gaussianEliminationWithRefinementLinearSystem->n * sizeof(real_t));
-    int numberOfIterations = refinamento(gaussianEliminationWithRefinementLinearSystem, solutionArray, executionTime);
-    real_t* residueArray = malloc(gaussianEliminationWithRefinementLinearSystem->n * sizeof(real_t));
-    real_t residueL2Norm = normaL2Residuo(gaussianEliminationWithRefinementLinearSystem, solutionArray, residueArray);
-    printSolution("Refinamento", *executionTime, solutionArray, gaussianEliminationWithRefinementLinearSystem->n, residueL2Norm, numberOfIterations);
-    if (residueL2Norm > 5.0) {
-        refineSolution(gaussianEliminationWithRefinementLinearSystem, solutionArray);
-    }
-}
-
 int hasLinearSystemToRead(int *numberOfElements) {
     return scanf("%d", numberOfElements) != EOF;
 }
@@ -126,7 +112,6 @@ int main() {
         gaussianElimination(linearSystem);
         jacobiMethod(linearSystem);
         gaussSeidelMethod(linearSystem);
-        gaussianEliminationWithRefinementMethod(linearSystem);
         linearSystemsCounter++;
     }
 }
