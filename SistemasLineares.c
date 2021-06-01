@@ -41,6 +41,10 @@ int eliminacaoGauss(SistLinear_t *SL, real_t *x, double *tTotal) {
     for (int k = 0; k < n - 1; k++) {
         partialPivoting(linearSystem, k);
         for (int i = 1 + k; i < n; i++) {
+            if (matrix[k][k] == 0) {
+                fprintf(stderr, "%s\n", "[Gaussian Elimination] Error: divison by zero");
+                return -1;
+            }
             m = matrix[i][k] / matrix[k][k];
             for (int j = k; j < n; j++) {
                 if (j == k) {
@@ -52,7 +56,11 @@ int eliminacaoGauss(SistLinear_t *SL, real_t *x, double *tTotal) {
             b[i] = b[i] - b[k] * m;
         }
     }
-    retrosubstitution(linearSystem, solutionsArray);
+    int result = retrosubstitution(linearSystem, solutionsArray);
+    if (result == -1) {
+        fprintf(stderr, "%s\n", "[Gaussian Elimination Retrosubstitution] Error: divison by zero");
+        return -1;
+    }
     // TODO: does the system got solved?
     // Calculate time
     *tTotal = timestamp() - *tTotal;
@@ -61,9 +69,11 @@ int eliminacaoGauss(SistLinear_t *SL, real_t *x, double *tTotal) {
 
 real_t multiplyLinesForJacobiMethod(const real_t *solucao, SistLinear_t *SL, int i, unsigned int tam) {
     real_t soma = 0;
-    for (int j = 0; j < tam; ++j)
-        if (j != i)
+    for (int j = 0; j < tam; ++j) {
+        if (j != i) {
             soma = soma + SL->A[i][j] * solucao[j];
+        }
+    }
     return soma;
 }
 
@@ -80,7 +90,6 @@ real_t multiplyLinesForJacobiMethod(const real_t *solucao, SistLinear_t *SL, int
           -1 (não converge) -2 (sem solução)
 */
 int gaussJacobi(SistLinear_t *SL, real_t *x, double *tTotal) {
-    // TODO: CALCULATE TIME
     SistLinear_t *linearSystem = SL;
     real_t *solution = x;
     unsigned int linearSystemSize = linearSystem->n;
@@ -121,6 +130,12 @@ int gaussJacobi(SistLinear_t *SL, real_t *x, double *tTotal) {
         }
         previousEuclideanNorm = currentEuclideanNorm;
     } while (currentEuclideanNorm > linearSystem->erro);
+    for (int i = 0; i < linearSystemSize; i++) {
+        if (isnan(solution[i])) {
+            fprintf(stderr, "%s\n", "[Jacobi Method] Error: system has no solution");
+            return -2;
+        }
+    }
     // Calculate time
     *tTotal = timestamp() - *tTotal;
     return numberOfIterations;
@@ -186,6 +201,12 @@ int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
         }
         previousEuclideanNorm = currentEuclideanNorm;
     } while(currentEuclideanNorm > SL->erro);
+    for (int i = 0; i < linearSystemSize; i++) {
+        if (isnan(x[i])) {
+            fprintf(stderr, "%s\n", "[Gauss-Seidel] Error: system has no solution");
+            return -2;
+        }
+    }
     // Calculate time
     *tTotal = timestamp() - *tTotal;
     return numberOfIterations;
@@ -394,10 +415,13 @@ void partialPivoting(SistLinear_t *linearSystem, int currentIteration) {
     free(auxLine);
 }
 
-void retrosubstitution(SistLinear_t *linearSystem, real_t *solutionArray) {
+int retrosubstitution(SistLinear_t *linearSystem, real_t *solutionArray) {
     int n = linearSystem->n;
     real_t **matrix = linearSystem->A;
     real_t *b = linearSystem->b;
+    if (matrix[(n - 1)][(n - 1)] == 0) {
+        return -1;
+    }
     solutionArray[n - 1] = b[n - 1] / matrix[(n - 1)][(n - 1)];
     real_t sum = 0;
     for (int i = n - 2; i >= 0; i--) {
@@ -405,8 +429,12 @@ void retrosubstitution(SistLinear_t *linearSystem, real_t *solutionArray) {
         for (int j = i + 1; j < n; j++) {
             sum -= matrix[i][j] * solutionArray[j];
         }
+        if (matrix[i][i] == 0) {
+            return -1;
+        }
         solutionArray[i] = sum / matrix[i][i];
     }
+    return 0;
 }
 
 real_t euclideanNorm(const real_t *vector, int size) {
