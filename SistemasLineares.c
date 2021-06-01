@@ -212,11 +212,11 @@ real_t distance(const real_t *vectorA, const real_t *vectorB, const int size) {
           -1 (não converge) -2 (sem solução)
   */
 int refinamento(SistLinear_t *SL, real_t *x, double *tTotal) {
-    // 1) Obter uma solução inicial x0 resolvendo Ax = b e inicializar i = 0
-    // 2) Calcular o resíduo r = b - Ax(i) e testar o critério de parada (a) (norma euclidiana do resíduo é menor que o SL->erro?)
-    // 3) Obter w resolvendo Aw = r;
-    // 4) Obter nova solução x(i+1) = x(i) + w e testar o critério de parada (b) (a distância máxima entre xi e xi+1 é menor que SL->error? Se sim, pode parar);
-    // 5) incrementar i e voltar ao passo 2
+    // 1) Get an inicial solution x0 by solving Ax = b; assign i = 0
+    // 2) Calculate the residue r = b - Ax(i) an test the stopping criterion (a)  (is the euclidean norm smaller than SL->erro?)
+    // 3) Get the "w" vector by solving Aw = r;
+    // 4) Get another solution x(i+1) = x(i) + w; test the stopping criterion (b) (is the maximum distance between xi and xi+1 smaller than SL->error? If yes, stop);
+    // 5) increment i and go to step (2)
     SistLinear_t *linearSystem = SL;
     SistLinear_t *auxLinearSystem = (SistLinear_t *) malloc(sizeof(SistLinear_t));
     auxLinearSystem->A = linearSystem->A;
