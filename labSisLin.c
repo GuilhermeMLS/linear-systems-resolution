@@ -69,6 +69,24 @@ int hasLinearSystemToRead(int *numberOfElements) {
     return scanf("%d", numberOfElements) != EOF;
 }
 
+SistLinear_t *copyLinearSystem(SistLinear_t *linearSystem) {
+    SistLinear_t *copy = alocaSistLinear(linearSystem->n);
+    // Copy matrix A
+    for (int i = 0; i < linearSystem->n; i++) {
+        for (int j = 0; j < linearSystem->n; j++) {
+            copy->A[i][j] = linearSystem->A[i][j];
+        }
+    }
+    // Copy b
+    for (int i = 0; i < linearSystem->n; i++) {
+        copy->b[i] = linearSystem->b[i];
+    }
+    // Copy erro and n
+    copy->erro = linearSystem->erro;
+    copy->n = linearSystem->n;
+    return copy;
+}
+
 int main() {
     int numberOfElements;
     int linearSystemsCounter = 1;
@@ -77,7 +95,8 @@ int main() {
         scanf("%*c"); // ignores \n
         printf("***** Sistema %d ", linearSystemsCounter);
         linearSystem = lerSistLinear(numberOfElements);
-        gaussianElimination(linearSystem);
+        SistLinear_t *gaussEliminationLinearSystem = copyLinearSystem(linearSystem);
+        gaussianElimination(gaussEliminationLinearSystem);
         jacobiMethod(linearSystem);
         gaussSeidelMethod(linearSystem);
         gaussianEliminationWithRefinementMethod(linearSystem);
