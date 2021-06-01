@@ -19,7 +19,7 @@ SistLinear_t* alocaSistLinear (unsigned int n);
 void liberaSistLinear (SistLinear_t *SL);
 
 // Leitura e impressão de sistemas lineares
-SistLinear_t *lerSistLinear ();
+SistLinear_t *lerSistLinear (int numberOfElements);
 void prnSistLinear (SistLinear_t *SL);
 void prnVetor (real_t *vet, unsigned int n);
 

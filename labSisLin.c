@@ -5,8 +5,6 @@
 #include "utils.h"
 #include "SistemasLineares.h"
 
-#define NUMBER_OF_SYSTEMS 14 // TODO: improve this
-
 void printSolution(
     char* method,
     double executionTime,
@@ -67,13 +65,22 @@ void gaussianEliminationWithRefinementMethod(SistLinear_t* linearSystem) {
     printSolution("Refinamento", *executionTime, solutionArray, linearSystem->n, residueL2Norm, numberOfIterations);
 }
 
+int hasLinearSystemToRead(int *numberOfElements) {
+    return scanf("%d", numberOfElements) != EOF;
+}
+
 int main() {
-    for (int i = 0; i < NUMBER_OF_SYSTEMS; i++) {
-        printf("***** Sistema %d ", i);
-        SistLinear_t* linearSystem = lerSistLinear();
+    int numberOfElements;
+    int linearSystemsCounter = 1;
+    SistLinear_t* linearSystem;
+    while (hasLinearSystemToRead(&numberOfElements)) {
+        scanf("%*c"); // ignores \n
+        printf("***** Sistema %d ", linearSystemsCounter);
+        linearSystem = lerSistLinear(numberOfElements);
         gaussianElimination(linearSystem);
         jacobiMethod(linearSystem);
         gaussSeidelMethod(linearSystem);
         gaussianEliminationWithRefinementMethod(linearSystem);
+        linearSystemsCounter++;
     }
 }

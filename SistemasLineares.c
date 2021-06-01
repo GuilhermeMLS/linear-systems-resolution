@@ -305,10 +305,8 @@ void liberaSistLinear(SistLinear_t *SL) {
 
   \return sistema linear SL. NULL se houve erro (leitura ou alocação)
   */
-SistLinear_t *lerSistLinear() {
-    unsigned int numberOfElements;
+SistLinear_t *lerSistLinear(int numberOfElements) {
     SistLinear_t *linearSystem;
-    scanf("%d", &numberOfElements);
     if (!numberOfElements || numberOfElements <= 0) {
         return NULL;
     }
