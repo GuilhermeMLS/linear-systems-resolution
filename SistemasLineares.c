@@ -159,25 +159,27 @@ int gaussJacobi(SistLinear_t *SL, real_t *x, double *tTotal) {
           -1 (não converge) -2 (sem solução)
   */
 int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
-    unsigned int linearSystemSize = SL->n;
+    SistLinear_t *linearSystem = SL;
+    real_t *solution = x;
+    unsigned int linearSystemSize = linearSystem->n;
     int numberOfIterations, errorIncreaseCounter = 0;
     for (int i = 0; i < linearSystemSize; i++) {
-        x[i] = 0;
+        solution[i] = 0;
     }
     numberOfIterations = 0;
     double currentEuclideanNorm, previousEuclideanNorm;
     real_t diff[linearSystemSize];
     do {
         for (int i = 0; i < linearSystemSize; i++) {
-            if (!SL->A[i][i]) {
+            if (!linearSystem->A[i][i]) {
                 fprintf(stderr, "%s\n", "[Gauss-Seidel] Error: divison by zero");
                 return -2;
             }
-            diff[i] = x[i];
-            x[i] = (SL->b[i] - multiplyLines(SL, x, i, linearSystemSize)) / SL -> A[i][i];
+            diff[i] = solution[i];
+            solution[i] = (linearSystem->b[i] - multiplyLines(linearSystem, solution, i, linearSystemSize)) / linearSystem -> A[i][i];
         }
         for (int i = 0; i < linearSystemSize; i++) {
-            diff[i] = x[i] - diff[i];
+            diff[i] = solution[i] - diff[i];
         }
         currentEuclideanNorm = euclideanNorm(diff, linearSystemSize);
         if (numberOfIterations > 0) { // Ensures that "previousEuclideanNorm" has been initialized
@@ -194,7 +196,7 @@ int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
             return -2;
         }
         previousEuclideanNorm = currentEuclideanNorm;
-    } while(currentEuclideanNorm > SL->erro);
+    } while(currentEuclideanNorm > linearSystem->erro);
     for (int i = 0; i < linearSystemSize; i++) {
         if (isnan(x[i])) {
             fprintf(stderr, "%s\n", "[Gauss-Seidel] Error: system has no solution");
