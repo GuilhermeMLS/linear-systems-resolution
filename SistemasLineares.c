@@ -67,14 +67,19 @@ int eliminacaoGauss(SistLinear_t *SL, real_t *x, double *tTotal) {
     return 0;
 }
 
-real_t multiplyLinesForJacobiMethod(const real_t *solucao, SistLinear_t *SL, int i, unsigned int tam) {
-    real_t soma = 0;
-    for (int j = 0; j < tam; ++j) {
-        if (j != i) {
-            soma = soma + SL->A[i][j] * solucao[j];
+real_t multiplyLines(
+    SistLinear_t *linearSystem,
+    const real_t *solution,
+    int iteration,
+    unsigned int linearSystemSize
+) {
+    real_t sum = 0;
+    for (int i = 0; i < linearSystemSize; i++) {
+        if (i != iteration) {
+            sum += linearSystem->A[iteration][i] * solution[i];
         }
     }
-    return soma;
+    return sum;
 }
 
 /*!
@@ -107,7 +112,7 @@ int gaussJacobi(SistLinear_t *SL, real_t *x, double *tTotal) {
                 fprintf(stderr, "%s\n", "[Jacobi Method] Error: divison by zero");
                 return -2;
             }
-            solution[i] = (linearSystem->b[i] - multiplyLinesForJacobiMethod(currentSolution, linearSystem, i, linearSystemSize)) /
+            solution[i] = (linearSystem->b[i] - multiplyLines(linearSystem, currentSolution, i, linearSystemSize)) /
                    linearSystem->A[i][i];
         }
         for (i = 0; i < linearSystemSize; ++i) {
@@ -141,16 +146,6 @@ int gaussJacobi(SistLinear_t *SL, real_t *x, double *tTotal) {
     return numberOfIterations;
 }
 
-real_t multilyLinesForGaussSeidelMethod(SistLinear_t *SL, const real_t *x, int i, unsigned int tam) {
-    real_t soma = 0;
-    for (int j = 0; j < tam; j++) {
-        if (j != i) {
-            soma += SL->A[i][j] * x[j];
-        }
-    }
-    return soma;
-}
-
 /*!
   \brief Método de Gauss-Seidel
 
@@ -164,11 +159,10 @@ real_t multilyLinesForGaussSeidelMethod(SistLinear_t *SL, const real_t *x, int i
           -1 (não converge) -2 (sem solução)
   */
 int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
-    // TODO: CALCULATE TIME
     unsigned int linearSystemSize = SL->n;
     int numberOfIterations, errorIncreaseCounter = 0;
     for (int i = 0; i < linearSystemSize; i++) {
-        x[i] = 1;
+        x[i] = 0;
     }
     numberOfIterations = 0;
     double currentEuclideanNorm, previousEuclideanNorm;
@@ -180,7 +174,7 @@ int gaussSeidel(SistLinear_t *SL, real_t *x, double *tTotal) {
                 return -2;
             }
             diff[i] = x[i];
-            x[i] = (SL->b[i] - multilyLinesForGaussSeidelMethod(SL, x, i, linearSystemSize)) / SL -> A[i][i];
+            x[i] = (SL->b[i] - multiplyLines(SL, x, i, linearSystemSize)) / SL -> A[i][i];
         }
         for (int i = 0; i < linearSystemSize; i++) {
             diff[i] = x[i] - diff[i];
